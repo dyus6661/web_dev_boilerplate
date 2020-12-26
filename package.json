@@ -1,0 +1,38 @@
+{
+  "name": "web_dev_starter_kit",
+  "version": "1.0.0",
+  "description": "Boilerplate for frontend web development",
+  "scripts": {
+    "watch": "cross-env NODE_ENV=development gulp watch",
+    "build": "cross-env NODE_ENV=production gulp build",
+    "serve": "cross-env NODE_ENV=development gulp serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dyus6661/web_dev_boilerplate.git"
+  },
+  "keywords": ["html", "css", "sass", "scss", "postcss", "cssnano", "gulp"],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dyus6661/web_dev_boilerplate/issues"
+  },
+  "homepage": "https://github.com/dyus6661/web_dev_boilerplate#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.1.0",
+    "browser-sync": "^2.26.13",
+    "cross-env": "^7.0.3",
+    "cssnano": "^4.1.10",
+    "cssnano-preset-advanced": "^4.0.7",
+    "gulp": "^4.0.2",
+    "gulp-clean": "^0.4.0",
+    "gulp-imagemin": "^7.1.0",
+    "gulp-newer": "^1.4.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-postcss": "^9.0.0",
+    "gulp-sass": "^4.1.0",
+    "gulp-svg-sprite": "^1.5.0",
+    "node-sass": "^5.0.0",
+    "path-posix": "^1.0.0"
+  }
+}

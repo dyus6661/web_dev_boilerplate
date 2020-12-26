@@ -1,0 +1,48 @@
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font: 14px/1.6 Roboto, Arial, sans-serif;
+    background-color: #fdfdfd;
+    animation: backgroundStrobo 10s infinite;
+}
+
+main {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+h1 {
+    color: cyan;
+    text-shadow: 0 1px 3px #0000008d;
+}
+
+@keyframes backgroundStrobo {
+    0% {
+        background-color: darkseagreen;
+    }
+
+    30% {
+        background-color: azure;
+    }
+
+    50% {
+        background-color: bisque;
+    }
+
+    80% {
+        background-color: burlywood;
+    }
+
+    100% {
+        background-color: cadetblue;
+    }
+}
