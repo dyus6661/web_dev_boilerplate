@@ -6,8 +6,13 @@ const {
     watch
 } = require("gulp");
 
+const source = require("vinyl-source-stream");
+const buffer = require("vinyl-buffer");
+
 const path = require("path-posix");
 const sass = require("gulp-sass");
+const babel = require("gulp-babel");
+const rollup = require("rollup-stream");
 const postCss = require("gulp-postcss");
 const clean = require("gulp-clean");
 const svgSprite = require("gulp-svg-sprite");
@@ -15,6 +20,8 @@ const plumber = require("gulp-plumber");
 const browserSync = require("browser-sync").create();
 const imagemin = require("gulp-imagemin");
 const newer = require("gulp-newer");
+const sourcemaps = require("gulp-sourcemaps");
+const terser = require("gulp-terser");
 
 const config = {
     path: {
@@ -24,6 +31,7 @@ const config = {
         sass: "scss",
         js: "js",
         mainSassFile: "main.scss",
+        mainJsFile: "main.js",
         images: "images",
         svgSpriteName: "sprite.svg"
     },
@@ -38,7 +46,8 @@ const aliases = {
     srcJsPath: path.join(config.path.src, config.path.js),
     distJsPath: path.join(config.path.dist, config.path.js)
 };
-aliases.mainSassFile = path.join(aliases.srcSassPath, config.path.mainSassFile)
+aliases.mainSassFile = path.join(aliases.srcSassPath, config.path.mainSassFile);
+aliases.mainJsFile = path.join(aliases.srcJsPath, config.path.mainJsFile);
 
 sass.compiler = require("node-sass");
 
@@ -48,10 +57,6 @@ function clear() {
         allowEmpty: true
     }).pipe(clean());
 }
-
-/*
-    TODO: Implement JS processing function
-*/
 
 function clearSprites(cb) {
     return src(path.join(
@@ -92,6 +97,40 @@ function optimizeImages() {
         .pipe(dest(aliases.distImagesPath));
 }
 
+function js() {
+    return rollup({
+            input: aliases.mainJsFile,
+            sourcemap: true,
+            format: "umd"
+        })
+        .pipe(source(config.path.mainJsFile, aliases.srcJsPath))
+        .pipe(buffer())
+        .pipe(sourcemaps.init({
+            loadMaps: true
+        }))
+        .pipe(sourcemaps.write(".", {
+            sourceRoot: aliases.srcJsPath
+        }))
+        .pipe(dest(aliases.distJsPath));
+}
+
+function jsBuild() {
+    return rollup({
+            input: aliases.mainJsFile,
+            sourcemap: true,
+            format: "umd"
+        })
+        .pipe(source(config.path.mainJsFile, aliases.srcJsPath))
+        .pipe(buffer()).pipe(sourcemaps.init({
+            loadMaps: true
+        }))
+        .pipe(terser())
+        .pipe(sourcemaps.write(".", {
+            sourceRoot: aliases.srcJsPath
+        }))
+        .pipe(dest(aliases.distJsPath));
+}
+
 function scss(cb) {
     return src(aliases.mainSassFile)
         .pipe(sass({
@@ -129,7 +168,9 @@ function serve() {
     watch(path.join(config.path.src, "**/*.html"), {}, series(html)).on("change", browserSync.reload);
     watch(path.join(aliases.srcImagesPath, "*.svg"), {}, series(clearSprites, svgSprite)).on("change", browserSync.reload);
     watch(path.join(aliases.srcImagesPath, "*.{png, jpg}"), {}, series(optimizeImages)).on("change", browserSync.reload);
-    watch(path.join(aliases.distJsPath, "*.js")).on("change", browserSync.reload);
+    watch(path.join(aliases.srcJsPath, "*.js"), {
+        ignoreInitial: false
+    }, series(js)).on("change", browserSync.reload);
 }
 
 exports.default = exports.watch = function () {
@@ -137,7 +178,7 @@ exports.default = exports.watch = function () {
         ignoreInitial: false
     }, series(clear, scss));
 };
-exports.build = series(scssBuild, series(clearSprites, svgSprites), optimizeImages);
+exports.build = series(jsBuild, scssBuild, series(clearSprites, svgSprites), optimizeImages);
 exports.serve = series(
     series(clearSprites, svgSprites),
     optimizeImages,
